@@ -1,3 +1,3 @@
 export default function BrowsePage() {
-  return <div>Browse</div>;
+  return <div>Browse books</div>;
 }
