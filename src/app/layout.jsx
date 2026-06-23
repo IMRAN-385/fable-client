@@ -4,7 +4,7 @@ import {
   JetBrains_Mono,
 } from "next/font/google";
 
-import { AuthProvider } from "../context/AuthContext";
+import { AuthProvider } from "../../src/context/AuthContext";
 import AppShell from "../components/AppSpell";
 import "./globals.css";
 import { ToastProvider } from "../context/toastcontext";
