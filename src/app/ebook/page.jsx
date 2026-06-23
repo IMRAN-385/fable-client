@@ -1,92 +1,83 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
 
-const genres = ["Fiction", "Mystery", "Romance", "Sci-Fi", "Fantasy", "Horror", "Biography", "History"];
+const GENRES = ["Fiction", "Mystery", "Romance", "Sci-Fi", "Fantasy", "Horror", "Biography", "History"];
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl aspect-[3/4] animate-pulse" style={{ background: "var(--ink-soft)" }} />
+    <div className="rounded-2xl overflow-hidden border" style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}>
+      <div className="aspect-[3/4] animate-pulse" style={{ background: "var(--line)" }} />
+      <div className="p-3 space-y-2">
+        <div className="h-3 rounded-full animate-pulse" style={{ background: "var(--line)", width: "80%" }} />
+        <div className="h-3 rounded-full animate-pulse" style={{ background: "var(--line)", width: "50%" }} />
+      </div>
+    </div>
   );
 }
 
-function EbookCard({ ebook, index }) {
+function EbookCard({ ebook }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.07 }}
+    <Link
+      href={`/ebooks/${ebook._id}`}
+      className="group block rounded-2xl overflow-hidden border hover:shadow-md transition-all duration-200"
+      style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
     >
-      <Link
-        href={`/ebooks/${ebook._id}`}
-        className="group block relative rounded-2xl overflow-hidden aspect-[3/4]"
-        style={{ background: "var(--ink-soft)" }}
-      >
-        <div
-          className="absolute inset-y-0 left-0 w-1"
-          style={{ background: "linear-gradient(180deg, var(--gold), var(--spine))" }}
-        />
-
+      <div className="relative aspect-[3/4] overflow-hidden">
         {ebook.coverImage ? (
           <img
             src={ebook.coverImage}
             alt={ebook.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center font-display text-4xl" style={{ color: "var(--muted)" }}>
+          <div
+            className="w-full h-full flex items-center justify-center text-4xl"
+            style={{ background: "var(--line)" }}
+          >
             📖
           </div>
         )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-
+        <span
+          className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide"
+          style={{ background: "rgba(28,24,20,0.75)", color: "#fff" }}
+        >
+          {ebook.genre}
+        </span>
         {ebook.status === "sold" && (
           <span
-            className="absolute top-3 left-3 px-2 py-1 rounded-full font-mono text-[10px] uppercase tracking-wide"
-            style={{ background: "var(--spine)", color: "var(--ivory)" }}
+            className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase"
+            style={{ background: "#dc2626", color: "#fff" }}
           >
             Sold
           </span>
         )}
-
-        <span
-          className="absolute top-3 right-3 px-2 py-1 rounded-full font-mono text-[10px] uppercase tracking-wide rotate-2"
-          style={{ background: "rgba(201,162,39,0.15)", color: "var(--gold)", border: "1px solid var(--gold)" }}
+      </div>
+      <div className="p-3">
+        <h3
+          className="font-semibold text-sm leading-tight mb-1 line-clamp-2"
+          style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
         >
-          {ebook.genre}
-        </span>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="font-display text-base mb-1 leading-tight" style={{ color: "var(--ivory)" }}>
-            {ebook.title}
-          </h3>
-          <p className="font-mono text-xs mb-2" style={{ color: "var(--muted)" }}>
-            by {ebook.writerName}
-          </p>
-          <p className="font-mono text-sm font-semibold" style={{ color: "var(--gold)" }}>
-            ${ebook.price}
-          </p>
-        </div>
-      </Link>
-    </motion.div>
+          {ebook.title}
+        </h3>
+        <p className="text-xs mb-1" style={{ color: "var(--ink-500)" }}>by {ebook.writerName}</p>
+        <p className="text-sm font-semibold" style={{ color: "var(--ink-900)" }}>${ebook.price}</p>
+      </div>
+    </Link>
   );
 }
 
-export default function BrowseEbooksPage() {
+function BrowseContent() {
   const searchParams = useSearchParams();
   const [ebooks, setEbooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-
   const [search, setSearch] = useState("");
   const [genre, setGenre] = useState(searchParams.get("genre") || "");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [availability, setAvailability] = useState("");
   const [sort, setSort] = useState("");
 
   const fetchEbooks = async (page = 1) => {
@@ -97,11 +88,9 @@ export default function BrowseEbooksPage() {
       if (genre) params.set("genre", genre);
       if (minPrice) params.set("minPrice", minPrice);
       if (maxPrice) params.set("maxPrice", maxPrice);
-      if (availability) params.set("availability", availability);
       if (sort) params.set("sort", sort);
       params.set("page", page);
-      params.set("limit", 9);
-
+      params.set("limit", 8);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ebooks?${params}`);
       const data = await res.json();
       setEbooks(data.ebooks || []);
@@ -114,174 +103,193 @@ export default function BrowseEbooksPage() {
     }
   };
 
-  useEffect(() => {
-    fetchEbooks(1);
-  }, [genre]);
+  useEffect(() => { fetchEbooks(1); }, [genre]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchEbooks(1);
+  const handleReset = () => {
+    setSearch(""); setGenre(""); setMinPrice(""); setMaxPrice(""); setSort("");
+    setTimeout(() => fetchEbooks(1), 50);
+  };
+
+  const inputStyle = {
+    background: "var(--paper)",
+    borderColor: "var(--line)",
+    color: "var(--ink-900)",
+    outline: "none",
   };
 
   return (
-    <main className="min-h-screen pt-28 pb-16 px-6 md:px-10 lg:px-16" style={{ background: "var(--ink)" }}>
-      <motion.div
-        className="mb-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <span className="w-8 h-px" style={{ background: "var(--ink-soft)" }} />
-          <span className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: "var(--muted)" }}>
-            Library
+    <main className="min-h-screen pt-6 pb-16 px-4 md:px-8 lg:px-12">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <span
+            className="inline-flex items-center border rounded-full px-3 py-0.5 text-xs uppercase tracking-widest mb-3"
+            style={{ borderColor: "var(--ink-900)", color: "var(--ink-900)" }}
+          >
+            Catalog
           </span>
+          <h1
+            className="text-4xl md:text-5xl font-semibold mb-2"
+            style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
+          >
+            Browse ebooks
+          </h1>
+          <p className="text-sm" style={{ color: "var(--ink-500)" }}>
+            Search and filter through original ebooks{" "}
+            <span style={{ color: "#d97706" }}>from our writers</span>.
+          </p>
         </div>
-        <h1 className="font-display text-3xl md:text-5xl" style={{ color: "var(--ivory)" }}>
-          Browse <span className="italic" style={{ color: "var(--gold)" }}>Ebooks</span>
-        </h1>
-      </motion.div>
 
-      {/* Filters */}
-      <div className="mb-8 flex flex-col gap-4">
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Search title or writer..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-full font-mono text-sm outline-none"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)", border: "1px solid var(--ink-soft)" }}
-          />
-          <button
-            type="submit"
-            className="px-6 py-2 rounded-full font-mono text-sm"
-            style={{ background: "var(--gold)", color: "var(--ink)" }}
-          >
-            Search
-          </button>
-        </form>
+        {/* Filter Bar */}
+        <div
+          className="rounded-2xl border p-4 mb-8"
+          style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
+        >
+          <div className="flex flex-wrap gap-3 items-end">
+            <div className="flex-1 min-w-48">
+              <label className="text-xs mb-1 block" style={{ color: "var(--ink-500)" }}>Search</label>
+              <input
+                type="text"
+                placeholder="Title or writer name"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && fetchEbooks(1)}
+                className="w-full px-3 py-2 rounded-xl border text-sm"
+                style={inputStyle}
+              />
+            </div>
 
-        <div className="flex flex-wrap gap-3">
-          {/* Genre */}
-          <select
-            value={genre}
-            onChange={(e) => setGenre(e.target.value)}
-            className="px-4 py-2 rounded-full font-mono text-sm outline-none"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          >
-            <option value="">All Genres</option>
-            {genres.map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
+            <div className="w-40">
+              <label className="text-xs mb-1 block" style={{ color: "var(--ink-500)" }}>Genre</label>
+              <select
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border text-sm"
+                style={inputStyle}
+              >
+                <option value="">All genres</option>
+                {GENRES.map((g) => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </div>
 
-          {/* Price Range */}
-          <input
-            type="number"
-            placeholder="Min $"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            className="w-24 px-4 py-2 rounded-full font-mono text-sm outline-none"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          />
-          <input
-            type="number"
-            placeholder="Max $"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-24 px-4 py-2 rounded-full font-mono text-sm outline-none"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          />
+            <div className="w-24">
+              <label className="text-xs mb-1 block" style={{ color: "var(--ink-500)" }}>Min $</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border text-sm"
+                style={inputStyle}
+              />
+            </div>
 
-          {/* Availability */}
-          <select
-            value={availability}
-            onChange={(e) => setAvailability(e.target.value)}
-            className="px-4 py-2 rounded-full font-mono text-sm outline-none"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          >
-            <option value="">All</option>
-            <option value="available">Available</option>
-            <option value="sold">Sold</option>
-          </select>
+            <div className="w-24">
+              <label className="text-xs mb-1 block" style={{ color: "var(--ink-500)" }}>Max $</label>
+              <input
+                type="number"
+                placeholder="999"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl border text-sm"
+                style={inputStyle}
+              />
+            </div>
 
-          {/* Sort */}
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="px-4 py-2 rounded-full font-mono text-sm outline-none"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          >
-            <option value="">Newest</option>
-            <option value="price_low">Price: Low → High</option>
-            <option value="price_high">Price: High → Low</option>
-          </select>
-
-          <button
-            onClick={() => fetchEbooks(1)}
-            className="px-6 py-2 rounded-full font-mono text-sm"
-            style={{ background: "var(--ink-soft)", color: "var(--gold)", border: "1px solid var(--gold)" }}
-          >
-            Apply
-          </button>
-        </div>
-      </div>
-
-      {/* Grid */}
-      {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {[...Array(9)].map((_, i) => <SkeletonCard key={i} />)}
-        </div>
-      ) : ebooks.length === 0 ? (
-        <div className="text-center py-24">
-          <p className="font-display text-2xl mb-2" style={{ color: "var(--ivory)" }}>No ebooks found</p>
-          <p className="font-mono text-sm" style={{ color: "var(--muted)" }}>Try changing your filters</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {ebooks.map((ebook, i) => (
-            <EbookCard key={ebook._id} ebook={ebook} index={i} />
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-12">
-          <button
-            onClick={() => fetchEbooks(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded-full font-mono text-sm disabled:opacity-30"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          >
-            ← Prev
-          </button>
-
-          {[...Array(totalPages)].map((_, i) => (
             <button
-              key={i}
-              onClick={() => fetchEbooks(i + 1)}
-              className="w-9 h-9 rounded-full font-mono text-sm"
-              style={{
-                background: currentPage === i + 1 ? "var(--gold)" : "var(--ink-soft)",
-                color: currentPage === i + 1 ? "var(--ink)" : "var(--ivory)",
-              }}
+              onClick={() => fetchEbooks(1)}
+              className="btn btn-primary px-5 py-2 text-sm self-end"
             >
-              {i + 1}
+              Go
             </button>
-          ))}
+          </div>
 
-          <button
-            onClick={() => fetchEbooks(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 rounded-full font-mono text-sm disabled:opacity-30"
-            style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
-          >
-            Next →
-          </button>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: "var(--line)" }}>
+            <div className="flex items-center gap-2">
+              <span className="text-xs" style={{ color: "var(--ink-500)" }}>Sort by</span>
+              <select
+                value={sort}
+                onChange={(e) => { setSort(e.target.value); setTimeout(() => fetchEbooks(1), 50); }}
+                className="px-3 py-1.5 rounded-xl border text-sm"
+                style={inputStyle}
+              >
+                <option value="">Newest</option>
+                <option value="price_low">Price: Low → High</option>
+                <option value="price_high">Price: High → Low</option>
+              </select>
+            </div>
+            <button
+              onClick={handleReset}
+              className="text-sm"
+              style={{ color: "var(--ink-500)" }}
+            >
+              Reset filters
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Grid */}
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : ebooks.length === 0 ? (
+          <div className="text-center py-24">
+            <p className="text-xl font-semibold mb-2" style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}>
+              No ebooks found
+            </p>
+            <p className="text-sm" style={{ color: "var(--ink-500)" }}>
+              Try changing your filters
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {ebooks.map((e) => <EbookCard key={e._id} ebook={e} />)}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-10">
+            <button
+              onClick={() => fetchEbooks(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="btn btn-outline px-4 py-2 text-sm disabled:opacity-30"
+            >
+              ← Prev
+            </button>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => fetchEbooks(i + 1)}
+                className="w-9 h-9 rounded-full text-sm font-medium"
+                style={{
+                  background: currentPage === i + 1 ? "var(--ink-900)" : "transparent",
+                  color: currentPage === i + 1 ? "var(--paper)" : "var(--ink-700)",
+                  border: currentPage === i + 1 ? "none" : "1.5px solid var(--line)",
+                }}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => fetchEbooks(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="btn btn-outline px-4 py-2 text-sm disabled:opacity-30"
+            >
+              Next →
+            </button>
+          </div>
+        )}
+      </div>
     </main>
+  );
+}
+
+export default function BrowseEbooksPage() {
+  return (
+    <Suspense>
+      <BrowseContent />
+    </Suspense>
   );
 }
