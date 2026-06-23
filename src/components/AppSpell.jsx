@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import LoadingScreen from "../components/LoadingScreen";
-import { Navbar } from "../components/shared/Navbar";
-import Footer from "../components/shared/Footer";
+import LoadingScreen from "./LoadingScreen";
+import { Navbar } from "./shared/Navbar";
+import Footer from "./shared/Footer";
 
 export default function AppShell({ children }) {
   const [isLoading, setIsLoading] = useState(true);
