@@ -20,11 +20,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar hide for horizontal scroll */
+
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Button base styles */
+
 .btn {
   display: inline-flex;
   align-items: center;
