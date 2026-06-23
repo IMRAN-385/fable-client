@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/Providers";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -147,7 +147,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Role Selection */}
             <div>
               <label className="text-xs mb-2 block" style={{ color: "var(--ink-700)" }}>
                 I want to
@@ -207,7 +206,11 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm mt-5" style={{ color: "var(--ink-500)" }}>
             Already a member?{" "}
-            <Link href="/login" style={{ color: "var(--ink-900)" }} className="underline underline-offset-4">
+            <Link
+              href="/login"
+              style={{ color: "var(--ink-900)" }}
+              className="underline underline-offset-4"
+            >
               Sign in
             </Link>
           </p>
