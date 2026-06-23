@@ -10,29 +10,27 @@ export default function LoadingScreen({ onComplete }) {
 
   useEffect(() => {
     const start = performance.now();
-    const duration = 2200;
-
+    const duration = 1800;
     const tick = (now) => {
       const progress = Math.min((now - start) / duration, 1);
       setCount(Math.floor(progress * 100));
       if (progress < 1) requestAnimationFrame(tick);
-      else setTimeout(onComplete, 400);
+      else setTimeout(onComplete, 300);
     };
-
     requestAnimationFrame(tick);
   }, [onComplete]);
 
   useEffect(() => {
-    const interval = setInterval(() => setWordIndex((i) => (i + 1) % words.length), 900);
+    const interval = setInterval(() => setWordIndex((i) => (i + 1) % words.length), 800);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col justify-between p-8" style={{ background: "var(--ink)" }}>
+    <div className="fixed inset-0 z-[9999] flex flex-col justify-between p-8" style={{ background: "var(--paper)" }}>
       <motion.span
-        className="font-mono text-xs uppercase tracking-[0.3em]"
-        style={{ color: "var(--muted)" }}
-        initial={{ y: -20, opacity: 0 }}
+        className="text-xs uppercase tracking-[0.3em]"
+        style={{ color: "var(--ink-500)" }}
+        initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >
         Fable
@@ -42,12 +40,16 @@ export default function LoadingScreen({ onComplete }) {
         <AnimatePresence mode="wait">
           <motion.span
             key={wordIndex}
-            className="font-display italic"
-            style={{ color: "var(--ivory)", fontSize: "clamp(2rem, 6vw, 4.5rem)", opacity: 0.85 }}
+            style={{
+              color: "var(--ink-900)",
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(2.5rem, 7vw, 5rem)",
+              fontStyle: "italic",
+            }}
             initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 0.85 }}
+            animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.35 }}
           >
             {words[wordIndex]}
           </motion.span>
@@ -55,18 +57,23 @@ export default function LoadingScreen({ onComplete }) {
       </div>
 
       <div className="flex justify-between items-end">
-        <div className="w-2/3 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(243,234,216,0.1)" }}>
+        <div className="w-2/3 h-[2px] rounded-full overflow-hidden" style={{ background: "var(--line)" }}>
           <div
             style={{
               height: "100%",
               width: `${count}%`,
-              background: "linear-gradient(90deg, var(--gold), var(--spine))",
-              boxShadow: "0 0 8px rgba(201,162,39,0.5)",
-              transition: "width 0.1s linear",
+              background: "var(--ink-900)",
+              transition: "width 0.08s linear",
             }}
           />
         </div>
-        <span className="font-display tabular-nums" style={{ color: "var(--ivory)", fontSize: "clamp(2.5rem, 8vw, 5rem)" }}>
+        <span
+          style={{
+            color: "var(--ink-900)",
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2rem, 6vw, 4rem)",
+          }}
+        >
           {String(count).padStart(3, "0")}
         </span>
       </div>
