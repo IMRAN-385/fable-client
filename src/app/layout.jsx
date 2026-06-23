@@ -4,7 +4,7 @@ import {
   JetBrains_Mono,
 } from "next/font/google";
 
-import { Providers } from "@/components/Providers";
+import { AuthProvider } from "../context/AuthContext";
 import AppShell from "../components/AppSpell";
 import "./globals.css";
 import { ToastProvider } from "../context/toastcontext";
@@ -33,11 +33,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Providers>
+        <AuthProvider>
           <ToastProvider>
             <AppShell>{children}</AppShell>
           </ToastProvider>
-        </Providers>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useAuth } from "../Providers";
+import { useAuth } from"../../context/AuthContext";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },

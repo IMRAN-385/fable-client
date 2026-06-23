@@ -1,73 +1,96 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+import {
+  BookOpen,
+  Search,
+  Heart,
+  Rocket,
+  Wand2,
+  Skull,
+  User,
+  Landmark,
+} from "lucide-react";
+
 const genres = [
-  { name: "Fiction", icon: "📖", color: "#2F4858" },
-  { name: "Mystery", icon: "🔍", color: "#8B2635" },
-  { name: "Romance", icon: "🌹", color: "#7B3F5E" },
-  { name: "Sci-Fi", icon: "🚀", color: "#3A5A40" },
-  { name: "Fantasy", icon: "🧙", color: "#5B4B8A" },
-  { name: "Horror", icon: "🌑", color: "#1a1a2e" },
-  { name: "Biography", icon: "👤", color: "#4A4A2F" },
-  { name: "History", icon: "🏛️", color: "#5C3D2E" },
+  { name: "Fiction", icon: BookOpen },
+  { name: "Mystery", icon: Search },
+  { name: "Romance", icon: Heart },
+  { name: "Sci-Fi", icon: Rocket },
+  { name: "Fantasy", icon: Wand2 },
+  { name: "Horror", icon: Skull },
+  { name: "Biography", icon: User },
+  { name: "History", icon: Landmark },
 ];
 
 export default function GenreGrid() {
   return (
-    <section className="px-6 md:px-10 lg:px-16 py-16 md:py-24" style={{ borderTop: "1px solid var(--ink-soft)" }}>
-      <motion.div
-        className="mb-10"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 1 }}
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <span className="w-8 h-px" style={{ background: "var(--ink-soft)" }} />
-          <span className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: "var(--muted)" }}>
+    <section
+      className="px-4 md:px-8 lg:px-12 py-10"
+      style={{ borderTop: "1px solid var(--line)" }}
+    >
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <div className="mb-6">
+          <span
+            className="inline-flex items-center border rounded-full px-3 py-0.5 text-xs uppercase tracking-widest mb-3"
+            style={{ borderColor: "var(--ink-900)", color: "var(--ink-900)" }}
+          >
             Browse by
           </span>
-        </div>
-        <h2 className="font-display text-3xl md:text-5xl" style={{ color: "var(--ivory)" }}>
-          Explore <span className="italic" style={{ color: "var(--gold)" }}>Genres</span>
-        </h2>
-      </motion.div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {genres.map((genre, i) => (
-          <motion.div
-            key={genre.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5, delay: i * 0.07 }}
+          <h2
+            className="text-3xl md:text-4xl font-semibold"
+            style={{
+              fontFamily: "var(--font-display)",
+              color: "var(--ink-900)",
+            }}
           >
-            <Link
-              href={`/ebooks?genre=${genre.name}`}
-              className="group flex flex-col items-center justify-center gap-3 p-6 rounded-3xl border text-center transition-all duration-300 h-full"
-              style={{
-                background: genre.color + "33",
-                borderColor: genre.color + "55",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = genre.color + "66";
-                e.currentTarget.style.borderColor = genre.color;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = genre.color + "33";
-                e.currentTarget.style.borderColor = genre.color + "55";
-              }}
-            >
-              <span className="text-3xl group-hover:scale-110 transition-transform duration-300">
-                {genre.icon}
-              </span>
-              <span className="font-mono text-sm uppercase tracking-wide" style={{ color: "var(--ivory)" }}>
-                {genre.name}
-              </span>
-            </Link>
-          </motion.div>
-        ))}
+            Explore <span style={{ fontStyle: "italic" }}>Genres</span>
+          </h2>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {genres.map((genre, i) => {
+            const Icon = genre.icon;
+
+            return (
+              <motion.div
+                key={genre.name}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.06 }}
+              >
+                <Link
+                  href={`/ebooks?genre=${genre.name}`}
+                  className="group flex items-center gap-3 p-4 rounded-2xl border transition-all hover:shadow-sm"
+                  style={{
+                    background: "var(--paper-2)",
+                    borderColor: "var(--line)",
+                  }}
+                >
+                  {/* ICON FIXED */}
+                  <Icon
+                    size={20}
+                    className="text-[var(--ink-900)] group-hover:scale-110 transition-transform duration-200"
+                  />
+
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: "var(--ink-900)" }}
+                  >
+                    {genre.name}
+                  </span>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

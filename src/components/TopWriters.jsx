@@ -8,123 +8,91 @@ export default function TopWriters() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch3 = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/top-writers`);
-        const data = await res.json();
-        setWriters(data.writers || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetch3();
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/top-writers`)
+      .then((r) => r.json())
+      .then((d) => setWriters(d.writers || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   const getInitials = (name) =>
-    name
-      ?.split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "W";
+    name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "W";
 
   return (
-    <section className="px-6 md:px-10 lg:px-16 py-16 md:py-24" style={{ borderTop: "1px solid var(--ink-soft)" }}>
-      <motion.div
-        className="mb-10"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 1 }}
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <span className="w-8 h-px" style={{ background: "var(--ink-soft)" }} />
-          <span className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: "var(--muted)" }}>
+    <section className="px-4 md:px-8 lg:px-12 py-10" style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6">
+          <span
+            className="inline-flex items-center border rounded-full px-3 py-0.5 text-xs uppercase tracking-widest mb-3"
+            style={{ borderColor: "var(--ink-900)", color: "var(--ink-900)" }}
+          >
             Community
           </span>
+          <h2
+            className="text-3xl md:text-4xl font-semibold"
+            style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
+          >
+            Top <span style={{ fontStyle: "italic" }}>Writers</span>
+          </h2>
         </div>
-        <h2 className="font-display text-3xl md:text-5xl" style={{ color: "var(--ivory)" }}>
-          Top <span className="italic" style={{ color: "var(--gold)" }}>Writers</span>
-        </h2>
-      </motion.div>
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-3xl h-48 animate-pulse" style={{ background: "var(--ink-soft)" }} />
-          ))}
-        </div>
-      ) : writers.length === 0 ? (
-        <p className="font-mono text-sm" style={{ color: "var(--muted)" }}>
-          No sales data yet.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {writers.map((writer, i) => (
-            <motion.div
-              key={writer._id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.6, delay: i * 0.15 }}
-            >
-              <Link
-                href={`/ebooks?writerId=${writer._id}`}
-                className="group flex items-center gap-5 p-6 rounded-3xl border transition-all duration-300"
-                style={{
-                  background: "var(--ink-soft)",
-                  borderColor: "var(--ink-soft)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--gold)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--ink-soft)";
-                }}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 rounded-2xl animate-pulse" style={{ background: "var(--line)" }} />
+            ))}
+          </div>
+        ) : writers.length === 0 ? (
+          <p className="text-sm" style={{ color: "var(--ink-500)" }}>No sales data yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {writers.map((writer, i) => (
+              <motion.div
+                key={writer._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <div className="relative flex-shrink-0">
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center font-display text-lg"
-                    style={{
-                      background: writer.photo
-                        ? "transparent"
-                        : "linear-gradient(135deg, var(--gold), var(--spine))",
-                      color: "var(--ink)",
-                    }}
-                  >
-                    {writer.photo ? (
-                      <img src={writer.photo} alt={writer.writerName} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      getInitials(writer.writerName)
-                    )}
+                <Link
+                  href={`/ebooks?writerId=${writer._id}`}
+                  className="group flex items-center gap-4 p-4 rounded-2xl border transition-all hover:shadow-sm"
+                  style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--ink-700)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--line)"; }}
+                >
+                  <div className="relative shrink-0">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold overflow-hidden"
+                      style={{ background: "var(--line)", color: "var(--ink-900)" }}
+                    >
+                      {writer.photo
+                        ? <img src={writer.photo} alt={writer.writerName} className="w-full h-full object-cover" />
+                        : getInitials(writer.writerName)
+                      }
+                    </div>
+                    <span
+                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold"
+                      style={{ background: "var(--ink-900)", color: "var(--paper)" }}
+                    >
+                      #{i + 1}
+                    </span>
                   </div>
-                  <span
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center font-mono text-[9px]"
-                    style={{ background: "var(--gold)", color: "var(--ink)" }}
-                  >
-                    #{i + 1}
-                  </span>
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="font-display text-lg truncate" style={{ color: "var(--ivory)" }}>
-                    {writer.writerName}
-                  </p>
-                  <p className="font-mono text-xs mt-1" style={{ color: "var(--muted)" }}>
-                    {writer.totalSales} {writer.totalSales === 1 ? "sale" : "sales"}
-                  </p>
-                </div>
-
-                <span className="font-mono text-xs group-hover:translate-x-1 transition-transform" style={{ color: "var(--gold)" }}>
-                  →
-                </span>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate" style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}>
+                      {writer.writerName}
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--ink-500)" }}>
+                      {writer.totalSales} {writer.totalSales === 1 ? "sale" : "sales"}
+                    </p>
+                  </div>
+                  <span className="text-sm group-hover:translate-x-1 transition-transform" style={{ color: "var(--ink-500)" }}>→</span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

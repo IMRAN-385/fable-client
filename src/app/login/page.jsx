@@ -1,13 +1,29 @@
 "use client";
+
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/components/Providers";
+import { useAuth } from "@/context/AuthContext";
 
 const QUICK_USERS = [
-  { label: "Admin", sub: "Full platform control", email: "admin@fable.com", password: "Admin@123" },
-  { label: "Writer", sub: "Publish & sell ebooks", email: "writer@fable.com", password: "writer123" },
-  { label: "Reader", sub: "Browse & read", email: "reader@fable.com", password: "reader123" },
+  {
+    label: "Admin",
+    sub: "Full platform control",
+    email: "admin@fable.com",
+    password: "Admin@123",
+  },
+  {
+    label: "Writer",
+    sub: "Publish & sell ebooks",
+    email: "writer@fable.com",
+    password: "writer123",
+  },
+  {
+    label: "Reader",
+    sub: "Browse & read",
+    email: "reader@fable.com",
+    password: "reader123",
+  },
 ];
 
 function LoginForm() {
@@ -25,6 +41,7 @@ function LoginForm() {
     e.preventDefault();
     setErr("");
     setBusy(true);
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
@@ -34,12 +51,16 @@ function LoginForm() {
           body: JSON.stringify({ email, password }),
         }
       );
+
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.message || "Login failed");
+
       saveAuth(data.user, data.token);
       router.push(next);
     } catch (e) {
       setErr(e.message);
+    } finally {
       setBusy(false);
     }
   };
@@ -47,6 +68,7 @@ function LoginForm() {
   const quickLogin = async (u) => {
     setBusy(true);
     setErr("");
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
@@ -56,12 +78,16 @@ function LoginForm() {
           body: JSON.stringify({ email: u.email, password: u.password }),
         }
       );
+
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.message || "Login failed");
+
       saveAuth(data.user, data.token);
       router.push(next);
     } catch (e) {
       setErr(e.message);
+    } finally {
       setBusy(false);
     }
   };
@@ -79,33 +105,43 @@ function LoginForm() {
       style={{ background: "var(--paper)" }}
     >
       <div className="w-full max-w-md">
-        {/* Main Card */}
+
+        {/* Card */}
         <div
           className="rounded-3xl border p-8"
-          style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
+          style={{
+            background: "var(--paper-2)",
+            borderColor: "var(--line)",
+          }}
         >
           <span
             className="inline-flex items-center border rounded-full px-3 py-0.5 text-xs uppercase tracking-widest mb-4"
-            style={{ borderColor: "var(--ink-900)", color: "var(--ink-900)" }}
+            style={{
+              borderColor: "var(--ink-900)",
+              color: "var(--ink-900)",
+            }}
           >
             Welcome back
           </span>
 
           <h1
             className="text-3xl font-semibold mb-1"
-            style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              color: "var(--ink-900)",
+            }}
           >
             Sign in to Fable
           </h1>
+
           <p className="text-sm mb-6" style={{ color: "var(--ink-500)" }}>
             Keep reading and managing your library.
           </p>
 
+          {/* Form */}
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--ink-700)" }}>
-                Email
-              </label>
+              <label className="text-xs mb-1 block">Email</label>
               <input
                 type="email"
                 required
@@ -117,9 +153,7 @@ function LoginForm() {
             </div>
 
             <div>
-              <label className="text-xs mb-1 block" style={{ color: "var(--ink-700)" }}>
-                Password
-              </label>
+              <label className="text-xs mb-1 block">Password</label>
               <input
                 type="password"
                 required
@@ -131,25 +165,28 @@ function LoginForm() {
             </div>
 
             {err && (
-              <p className="text-sm" style={{ color: "#dc2626" }}>{err}</p>
+              <p className="text-sm text-red-600">{err}</p>
             )}
 
             <button
               type="submit"
               disabled={busy}
-              className="w-full py-3 rounded-full text-sm font-medium disabled:opacity-50 transition-opacity"
-              style={{ background: "var(--ink-900)", color: "var(--paper)" }}
+              className="w-full py-3 rounded-full text-sm font-medium disabled:opacity-50"
+              style={{
+                background: "var(--ink-900)",
+                color: "var(--paper)",
+              }}
             >
               {busy ? "Signing in…" : "Sign in"}
             </button>
 
             <button
               type="button"
-              className="w-full py-3 rounded-full text-sm border transition-colors"
+              className="w-full py-3 rounded-full text-sm border"
               style={{
                 background: "transparent",
-                color: "var(--ink-700)",
                 borderColor: "var(--line)",
+                color: "var(--ink-700)",
               }}
               onClick={() => alert("Google login coming soon.")}
             >
@@ -157,7 +194,8 @@ function LoginForm() {
             </button>
           </form>
 
-          <p className="text-center text-sm mt-5" style={{ color: "var(--ink-500)" }}>
+          {/* Register */}
+          <p className="text-center text-sm mt-5">
             New here?{" "}
             <Link
               href="/register"
@@ -169,41 +207,26 @@ function LoginForm() {
           </p>
         </div>
 
-        {/* Quick Login */}
+        {/* Quick login */}
         <div className="mt-5">
-          <p
-            className="text-center text-xs uppercase tracking-widest mb-3"
-            style={{ color: "var(--ink-500)" }}
-          >
+          <p className="text-center text-xs uppercase tracking-widest mb-3">
             Or quick login as
           </p>
+
           <div className="grid grid-cols-3 gap-2">
             {QUICK_USERS.map((u) => (
               <button
                 key={u.label}
                 onClick={() => quickLogin(u)}
                 disabled={busy}
-                className="p-3 text-left rounded-2xl border transition-all hover:shadow-sm disabled:opacity-50"
+                className="p-3 rounded-2xl border text-left disabled:opacity-50"
                 style={{
                   background: "var(--paper-2)",
                   borderColor: "var(--line)",
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#eab308";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--line)";
-                }}
               >
-                <p
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--ink-900)" }}
-                >
-                  {u.label}
-                </p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--ink-500)" }}>
-                  {u.sub}
-                </p>
+                <p className="text-sm font-semibold">{u.label}</p>
+                <p className="text-xs text-gray-500">{u.sub}</p>
               </button>
             ))}
           </div>
@@ -213,9 +236,10 @@ function LoginForm() {
   );
 }
 
+/* ✅ IMPORTANT: Suspense fallback fix */
 export default function LoginPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
       <LoginForm />
     </Suspense>
   );

@@ -1,7 +1,7 @@
 import Hero from "../components/Hero";
 import FeaturedEbooks from "../components/FeaturedEbooks";
 import TopWriters from "../components/TopWriters";
-import Genregrid from "../components/Genregrid";
+import GenreGrid, { Genregrid } from "../components/Genregrid";
 
 export default function Home() {
   return (
@@ -9,7 +9,7 @@ export default function Home() {
       <Hero />
       <FeaturedEbooks />
       <TopWriters />
-      <Genregrid />
+      <GenreGrid />
     </main>
   );
 }
