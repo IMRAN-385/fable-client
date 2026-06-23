@@ -1,105 +1,133 @@
 "use client";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
+
+function EbookCard({ ebook }) {
+  return (
+    <Link
+      href={`/ebooks/${ebook._id}`}
+      className="group shrink-0 w-44 rounded-2xl overflow-hidden border hover:shadow-md transition-all duration-200"
+      style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
+    >
+      <div className="relative aspect-[3/4] overflow-hidden">
+        <img
+          src={ebook.coverImage}
+          alt={ebook.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <span
+          className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide"
+          style={{ background: "rgba(28,24,20,0.75)", color: "#fff" }}
+        >
+          {ebook.genre}
+        </span>
+        {ebook.status === "sold" && (
+          <span
+            className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase"
+            style={{ background: "#dc2626", color: "#fff" }}
+          >
+            Sold
+          </span>
+        )}
+      </div>
+      <div className="p-3">
+        <h3
+          className="font-semibold text-sm leading-tight mb-1 line-clamp-2"
+          style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
+        >
+          {ebook.title}
+        </h3>
+        <p className="text-xs mb-1" style={{ color: "var(--ink-500)" }}>
+          by {ebook.writerName}
+        </p>
+        <p className="text-sm font-semibold" style={{ color: "var(--ink-900)" }}>
+          ${ebook.price}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div
+      className="shrink-0 w-44 rounded-2xl overflow-hidden border"
+      style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
+    >
+      <div className="aspect-[3/4] animate-pulse" style={{ background: "var(--line)" }} />
+      <div className="p-3 space-y-2">
+        <div className="h-3 rounded-full animate-pulse" style={{ background: "var(--line)", width: "80%" }} />
+        <div className="h-3 rounded-full animate-pulse" style={{ background: "var(--line)", width: "60%" }} />
+        <div className="h-3 rounded-full animate-pulse" style={{ background: "var(--line)", width: "40%" }} />
+      </div>
+    </div>
+  );
+}
 
 export default function FeaturedEbooks() {
   const [ebooks, setEbooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEbooks = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ebooks?limit=6`);
-        const data = await res.json();
-        setEbooks(data.ebooks || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEbooks();
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ebooks?limit=8&sort=newest`)
+      .then((r) => r.json())
+      .then((d) => setEbooks(d.ebooks || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const spans = ["md:col-span-7", "md:col-span-5", "md:col-span-5", "md:col-span-7", "md:col-span-6", "md:col-span-6"];
-
   return (
-    <section className="px-6 md:px-10 lg:px-16 py-16 md:py-24" style={{ background: "var(--ink)" }}>
-      <motion.div
-        className="mb-10"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <span className="w-8 h-px" style={{ background: "var(--ink-soft)" }} />
-          <span className="font-mono text-xs uppercase tracking-[0.3em]" style={{ color: "var(--muted)" }}>
-            Just Added
-          </span>
-        </div>
-        <h2 className="font-display text-3xl md:text-5xl" style={{ color: "var(--ivory)" }}>
-          Featured <span className="italic" style={{ color: "var(--gold)" }}>ebooks</span>
-        </h2>
-      </motion.div>
-
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className={`rounded-3xl aspect-[4/5] animate-pulse ${spans[i - 1]}`} style={{ background: "var(--ink-soft)" }} />
-          ))}
-        </div>
-      ) : ebooks.length === 0 ? (
-        <p className="font-mono text-sm" style={{ color: "var(--muted)" }}>
-          No ebooks available yet.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6">
-          {ebooks.map((ebook, i) => (
-            <motion.div
-              key={ebook._id}
-              className={spans[i % spans.length]}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.7, delay: (i % 3) * 0.1, ease: "easeOut" }}
+    <section className="px-4 md:px-8 lg:px-12 py-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <span
+              className="inline-flex items-center border rounded-full px-3 py-0.5 text-xs uppercase tracking-widest mb-3"
+              style={{ borderColor: "var(--ink-900)", color: "var(--ink-900)" }}
             >
-              <Link
-                href={`/ebooks/${ebook._id}`}
-                className="group block relative rounded-3xl overflow-hidden aspect-[4/5]"
-                style={{ background: "var(--parchment)" }}
-              >
-                <div className="absolute inset-y-0 left-0 w-2" style={{ background: "linear-gradient(180deg, var(--gold), var(--spine))" }} />
-
-                <img
-                  src={ebook.coverImage}
-                  alt={ebook.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
-                <span
-                  className="absolute top-4 right-4 px-3 py-1 rounded-full font-mono text-[10px] uppercase tracking-wide rotate-3"
-                  style={{ background: "var(--spine)", color: "var(--ivory)" }}
-                >
-                  {ebook.genre}
-                </span>
-
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="font-display text-xl mb-1" style={{ color: "var(--ivory)" }}>
-                    {ebook.title}
-                  </h3>
-                  <p className="font-mono text-xs" style={{ color: "var(--muted)" }}>
-                    by {ebook.writerName} · ${ebook.price}
-                  </p>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+              Just Added
+            </span>
+            <h2
+              className="text-3xl md:text-4xl font-semibold"
+              style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
+            >
+              Featured ebooks
+            </h2>
+          </div>
+          <Link
+            href="/ebooks"
+            className="text-sm font-medium hidden md:inline-flex items-center gap-1"
+            style={{ color: "var(--ink-700)" }}
+          >
+            View all →
+          </Link>
         </div>
-      )}
+
+        <div
+          className="w-full border-b mb-6"
+          style={{ borderColor: "var(--line)" }}
+        />
+
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          {loading
+            ? [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
+            : ebooks.length === 0
+            ? (
+              <p className="text-sm" style={{ color: "var(--ink-500)" }}>
+                No ebooks yet. Check back soon!
+              </p>
+            )
+            : ebooks.map((e) => <EbookCard key={e._id} ebook={e} />)}
+        </div>
+
+        <Link
+          href="/ebooks"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-medium md:hidden"
+          style={{ color: "var(--ink-700)" }}
+        >
+          View all →
+        </Link>
+      </div>
     </section>
   );
 }
