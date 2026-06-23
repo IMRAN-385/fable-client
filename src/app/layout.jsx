@@ -33,11 +33,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
+        <Providers>
           <ToastProvider>
             <AppShell>{children}</AppShell>
           </ToastProvider>
-        </AuthProvider>
+        </Providers>
       </body>
     </html>
   );
