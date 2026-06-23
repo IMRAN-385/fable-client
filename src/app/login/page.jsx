@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/components/Providers";
 
 const QUICK_USERS = [
   { label: "Admin", sub: "Full platform control", email: "admin@fable.com", password: "Admin@123" },
@@ -74,7 +74,7 @@ function LoginForm() {
     >
       <div className="w-full max-w-md">
 
-        {/* Main Card */}
+        
         <div
           className="w-full p-8 rounded-2xl border"
           style={{ background: "var(--ink-soft)", borderColor: "rgba(255,255,255,0.08)" }}
@@ -98,7 +98,7 @@ function LoginForm() {
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-mono" style={{ color: "var(--muted)" }}>
+              <label className="mb-1  block text-xs font-mono" style={{ color: "var(--muted)" }}>
                 Email
               </label>
               <input
@@ -108,7 +108,7 @@ function LoginForm() {
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   color: "var(--ivory)",
-                  borderColor: "rgba(255,255,255,0.1)",
+                  borderColor: "rgba(1,1,1,1)",
                 }}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -125,7 +125,7 @@ function LoginForm() {
                 style={{
                   background: "rgba(255,255,255,0.05)",
                   color: "var(--ivory)",
-                  borderColor: "rgba(255,255,255,0.1)",
+                  borderColor: "rgba(1,1,1,1)",
                 }}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -136,7 +136,7 @@ function LoginForm() {
 
             <button
               disabled={busy}
-              className="w-full py-3 rounded-full font-mono text-sm uppercase tracking-wide transition-transform hover:scale-[1.02] disabled:opacity-50"
+              className="w-full py-3 rounded-full font-mono text-sm uppercase tracking-wide transition-transform hover:scale-[1.02] disabled:opacity-50 "
               style={{ background: "var(--gold)", color: "var(--ink)" }}
               type="submit"
             >
@@ -146,7 +146,7 @@ function LoginForm() {
             <button
               type="button"
               className="w-full py-3 rounded-full font-mono text-sm border transition-all hover:border-white/30"
-              style={{ background: "transparent", color: "var(--ivory)", borderColor: "rgba(255,255,255,0.12)" }}
+              style={{ background: "transparent", color: "var(--ivory)", borderColor: "rgba(1,1,1,1)" }}
               onClick={() => alert("Google login coming soon.")}
             >
               Continue with Google
@@ -182,7 +182,7 @@ function LoginForm() {
                 className="p-3 text-left rounded-xl border transition-all hover:border-yellow-500/50 disabled:opacity-50"
                 style={{
                   background: "var(--ink-soft)",
-                  borderColor: "rgba(255,255,255,0.08)",
+                  borderColor: "rgba(1,1,1,1)",
                 }}
               >
                 <p className="text-sm font-semibold font-mono" style={{ color: "var(--ivory)" }}>
