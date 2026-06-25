@@ -23,13 +23,13 @@ function SkeletonDetail() {
 export default function EbookDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user, token, loading } = useAuth();
 
   const [ebook, setEbook] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [buyLoading, setBuyLoading] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
@@ -49,14 +49,22 @@ export default function EbookDetailsPage() {
       } catch {
         setNotFound(true);
       } finally {
-        setLoading(false);
+        setPageLoading(false);
       }
     };
     fetchEbook();
   }, [id, token]);
 
   const handleBuy = async () => {
-    if (!user) { router.push("/login"); return; }
+    if (!user) {
+      if (loading) return;
+      router.push(`/login?redirect=/ebooks/${id}`);
+      return;
+    }
+    if (!token) {
+      router.push(`/login?redirect=/ebooks/${id}`);
+      return;
+    }
     try {
       setBuyLoading(true);
       const res = await fetch(
@@ -78,7 +86,11 @@ export default function EbookDetailsPage() {
   };
 
   const handleBookmark = async () => {
-    if (!user) { router.push("/login"); return; }
+    if (!user) {
+      if (loading) return;
+      router.push(`/login?redirect=/ebooks/${id}`);
+      return;
+    }
     try {
       setBookmarkLoading(true);
       await fetch(
@@ -96,7 +108,7 @@ export default function EbookDetailsPage() {
     }
   };
 
-  if (loading) return <SkeletonDetail />;
+  if (pageLoading) return <SkeletonDetail />;
 
   if (notFound) {
     return (

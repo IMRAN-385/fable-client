@@ -1,5 +1,7 @@
 import { Lora, Inter } from "next/font/google";
 import { Providers } from "@/components/Providers";
+import SessionWrapper from "@/components/SessionWrapper";
+import GoogleAuthBridge from "@/components/GoogleAuthBridge";
 import AppShell from "@/components/AppShell";
 import "./globals.css";
 
@@ -25,9 +27,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${lora.variable} ${inter.variable}`}>
       <body>
-        <Providers>
-          <AppShell>{children}</AppShell>
-        </Providers>
+        <SessionWrapper>
+          <Providers>
+            <GoogleAuthBridge />
+            <AppShell>{children}</AppShell>
+          </Providers>
+        </SessionWrapper>
       </body>
     </html>
   );

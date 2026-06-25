@@ -6,22 +6,33 @@ import Link from "next/link";
 export default function TopWriters() {
   const [writers, setWriters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) { setLoading(false); return; }
+    const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    if (!configuredApiUrl) {
+      setError("Missing NEXT_PUBLIC_API_URL. Set the frontend API URL in your environment.");
+      setLoading(false);
+      return;
+    }
 
-    fetch(`${apiUrl}/api/users/top-writers`)
-      .then((r) => r.json())
+    const url = `${configuredApiUrl}/api/users/top-writers`;
+
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`Server responded with ${r.status}`);
+        return r.json();
+      })
       .then((d) => setWriters(d.writers || []))
-      .catch(console.error)
+      .catch((err) => {
+        console.error("TopWriters fetch failed:", err);
+        setError(err.message || "Unable to load top writers at the moment.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "W";
-
-  if (!loading && writers.length === 0) return null;
 
   return (
     <section className="px-4 md:px-8 lg:px-12 py-12" style={{ borderTop: "1px solid var(--line)" }}>
@@ -52,6 +63,16 @@ export default function TopWriters() {
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-20 rounded-2xl animate-pulse" style={{ background: "var(--line)" }} />
             ))}
+          </div>
+        ) : error ? (
+          <div className="card px-6 py-8 text-center border border-red-200 bg-red-50 text-red-700">
+            <p className="text-lg font-semibold">Top writers unavailable</p>
+            <p className="mt-2 text-sm">{error}</p>
+          </div>
+        ) : writers.length === 0 ? (
+          <div className="card px-6 py-10 text-center border border-slate-200 bg-slate-50 text-slate-700">
+            <p className="text-lg font-semibold">No top writers found</p>
+            <p className="mt-2 text-sm">Check back later or ensure the backend has writer data.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

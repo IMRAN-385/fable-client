@@ -1,21 +1,33 @@
 "use client";
-import { useEffect } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/Providers";
+import { signOut } from "next-auth/react";
 
 export default function DashboardLayout({ children }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentTab = searchParams.get("tab");
+  const [currentTab, setCurrentTab] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    setCurrentTab(sp.get("tab"));
+  }, [pathname]);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login?redirect=" + pathname);
     }
   }, [user, loading, router, pathname]);
+
+  const handleLogout = () => {
+    logout();
+    signOut({ redirect: false }).catch(() => {});
+    window.location.href = "/";
+  };
 
   if (loading) {
     return (
@@ -116,7 +128,7 @@ export default function DashboardLayout({ children }) {
                   ← Library
                 </Link>
                 <button
-                  onClick={() => { logout(); router.push("/"); }}
+                  onClick={handleLogout}
                   className="text-left px-3 py-2 rounded-xl text-sm"
                   style={{ color: "var(--ink-500)" }}
                 >

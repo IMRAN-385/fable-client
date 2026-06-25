@@ -4,10 +4,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/Providers";
 import { motion, AnimatePresence } from "framer-motion";
+import { signOut } from "next-auth/react";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/ebooks", label: "Browse" },
+  { href: "/ebooks", label: "Browse Ebooks" },
 ];
 
 export function Navbar() {
@@ -29,6 +30,7 @@ export function Navbar() {
   const handleLogout = () => {
     logout();
     setOpen(false);
+    signOut({ redirect: false }).catch(() => {});
     router.push("/");
     router.refresh();
   };
@@ -42,7 +44,7 @@ export function Navbar() {
 
   const links = [
     ...NAV_LINKS,
-    { href: getDashboard(), label: "Dashboard" },
+    ...(user ? [{ href: getDashboard(), label: "Dashboard" }] : []),
   ];
 
   return (

@@ -15,6 +15,7 @@ export function EbookCardSkeleton() {
       <div className="p-3 space-y-2">
         <div
           className="h-3 rounded-full animate-pulse"
+          
           style={{ background: "var(--line)", width: "80%" }}
         />
         <div

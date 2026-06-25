@@ -86,15 +86,15 @@ export default function FeaturedEbooks() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (!apiUrl) { setError(true); setLoading(false); return; }
 
-    fetch(`${apiUrl}/api/ebooks?limit=8`)
+    fetch(`${apiUrl}/api/ebooks?limit=6`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((d) => setEbooks(d.ebooks || []))
+      .then((d) => setEbooks(d.ebooks?.slice(0, 6) || []))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
   return (
-    <section className="px-4 md:px-8 lg:px-12 py-12">
+    <section className="px-4 md:px-8 lg:px-12 py-12" style={{ borderTop: "1px solid var(--line)" }}>
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -136,12 +136,12 @@ export default function FeaturedEbooks() {
             <Link href="/ebooks" className="text-sm underline" style={{ color: "var(--ink-700)" }}>Browse Library</Link>
           </div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {loading
               ? [...Array(6)].map((_, i) => <SkeletonCard key={i} />)
               : ebooks.length === 0
               ? (
-                <div className="w-full text-center py-10 rounded-2xl border" style={{ borderColor: "var(--line)" }}>
+                <div className="col-span-full text-center py-10 rounded-2xl border" style={{ borderColor: "var(--line)" }}>
                   <p className="text-sm mb-3" style={{ color: "var(--ink-500)" }}>No ebooks yet.</p>
                   <Link href="/ebooks" className="text-sm underline" style={{ color: "var(--ink-700)" }}>Browse Library</Link>
                 </div>

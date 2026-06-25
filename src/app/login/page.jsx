@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/Providers";
@@ -30,16 +30,41 @@ const QUICK_USERS = [
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("redirect") || "/";
-  const { saveAuth } = useAuth();
+  const nextRedirect = searchParams.get("redirect");
+  const { user, loading, saveAuth } = useAuth();
+
+  const getDashboardPath = (role) => {
+    if (role === "admin") return "/dashboard/admin";
+    if (role === "writer") return "/dashboard/writer";
+    return "/";
+  };
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push(getDashboardPath(user.role));
+    }
+  }, [user, loading, router]);
+
+  const next = nextRedirect || "/";
+
+  if (loading) {
+    return null;
+  }
+
+  if (user) {
+    return null;
+  }
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const submittingRef = useRef(false);
 
   const submit = async (e) => {
     e.preventDefault();
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setErr("");
     setBusy(true);
 
@@ -58,15 +83,19 @@ function LoginForm() {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       saveAuth(data.user, data.token);
-      router.push(next);
+      try { router.refresh(); } catch {};
+      router.push(nextRedirect || getDashboardPath(data.user.role));
     } catch (e) {
       setErr(e.message);
     } finally {
       setBusy(false);
+      submittingRef.current = false;
     }
   };
 
   const quickLogin = async (u) => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setBusy(true);
     setErr("");
 
@@ -85,11 +114,13 @@ function LoginForm() {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       saveAuth(data.user, data.token);
-      router.push(next);
+      try { router.refresh(); } catch {};
+      router.push(nextRedirect || getDashboardPath(data.user.role));
     } catch (e) {
       setErr(e.message);
     } finally {
       setBusy(false);
+      submittingRef.current = false;
     }
   };
 

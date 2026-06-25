@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/Providers";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -41,12 +42,8 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Registration failed");
       saveAuth(data.user, data.token);
+      try { router.refresh(); } catch {};
 
-      // ✅ FIX: previously choosing "Publish ebooks" instantly made the
-      // account a writer for free. Now the backend always creates a
-      // "user" and just flags pendingWriter=true if they asked for writer
-      // access — so here we route them to pay the one-time verification
-      // fee before they actually get writer privileges.
       if (data.user.pendingWriter) {
         router.push("/dashboard/verify-writer");
       } else {
@@ -212,6 +209,10 @@ export default function RegisterPage() {
             >
               {busy ? "Creating account…" : "Create account"}
             </button>
+
+            <div className="mt-4">
+              <GoogleLoginButton />
+            </div>
           </form>
 
           <p className="text-center text-sm mt-5" style={{ color: "var(--ink-500)" }}>

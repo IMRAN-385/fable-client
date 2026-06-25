@@ -6,7 +6,7 @@ import { useAuth } from "@/components/Providers";
 function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
   const [status, setStatus] = useState("verifying");
 
   const sessionId = searchParams.get("session_id");
@@ -16,7 +16,15 @@ function PaymentContent() {
   const type = searchParams.get("type") || "purchase";
 
   useEffect(() => {
-    if (!sessionId) { setStatus("error"); return; }
+    if (!sessionId) {
+      setStatus("error");
+      return;
+    }
+    if (loading) return;
+    if (!token) {
+      router.push(`/login?redirect=/payment?session_id=${sessionId}&ebookId=${ebookId}&type=${type}`);
+      return;
+    }
 
     const confirm = async () => {
       try {
@@ -40,7 +48,7 @@ function PaymentContent() {
     };
 
     confirm();
-  }, [sessionId, token]);
+  }, [sessionId, token, loading, router, ebookId, type]);
 
   const handleContinue = () => {
     if (type === "publishing_fee") {

@@ -99,6 +99,7 @@ export function Providers({ children }) {
     localStorage.setItem("user", JSON.stringify(u));
     setToken(tokenData);
     setUser(u);
+    setLoading(false);
   }, []);
 
   const logout = useCallback(() => {
@@ -106,6 +107,7 @@ export function Providers({ children }) {
     localStorage.removeItem("user");
     setUser(null);
     setToken(null);
+    setLoading(false);
   }, []);
 
   const push = useCallback((message, type = "info") => {
