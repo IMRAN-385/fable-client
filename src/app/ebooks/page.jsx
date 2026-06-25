@@ -347,7 +347,7 @@ function BrowseContent() {
     </main>
   );
 }
-
+console.log(process.env.NEXT_PUBLIC_API_URL);
 export default function BrowseEbooksPage() {
   return (
     <Suspense>
