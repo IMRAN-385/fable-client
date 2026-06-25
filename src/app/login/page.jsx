@@ -47,14 +47,6 @@ function LoginForm() {
 
   const next = nextRedirect || "/";
 
-  if (loading) {
-    return null;
-  }
-
-  if (user) {
-    return null;
-  }
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -83,7 +75,6 @@ function LoginForm() {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       saveAuth(data.user, data.token);
-      try { router.refresh(); } catch {};
       router.push(nextRedirect || getDashboardPath(data.user.role));
     } catch (e) {
       setErr(e.message);
@@ -114,7 +105,6 @@ function LoginForm() {
       if (!res.ok) throw new Error(data.message || "Login failed");
 
       saveAuth(data.user, data.token);
-      try { router.refresh(); } catch {};
       router.push(nextRedirect || getDashboardPath(data.user.role));
     } catch (e) {
       setErr(e.message);

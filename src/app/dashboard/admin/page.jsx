@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/components/Providers";
+import { useAuth, useToast } from "@/components/Providers";
 
 function SimpleBar({ label, value, max }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
@@ -19,6 +19,7 @@ function SimpleBar({ label, value, max }) {
 
 function AdminDashboardContent() {
   const { token } = useAuth();
+  const { push } = useToast();
   const searchParams = useSearchParams();
 
   // ✅ FIX: DashboardLayout's sidebar links point to
@@ -72,9 +73,16 @@ function AdminDashboardContent() {
   };
 
   const handleDeleteUser = async (id) => {
-    if (!confirm("Delete user?")) return;
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`, { method: "DELETE", headers: h });
-    fetchAll();
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${id}`, { method: "DELETE", headers: h });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Unable to delete user");
+      push("User deleted successfully", "success");
+      await fetchAll();
+    } catch (error) {
+      console.error(error);
+      push(error.message || "Failed to delete user", "error");
+    }
   };
 
   const handleDeleteEbook = async (id) => {
