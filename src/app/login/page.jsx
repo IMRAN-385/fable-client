@@ -3,7 +3,8 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/components/Providers";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const QUICK_USERS = [
   {
@@ -180,21 +181,10 @@ function LoginForm() {
               {busy ? "Signing in…" : "Sign in"}
             </button>
 
-            <button
-              type="button"
-              className="w-full py-3 rounded-full text-sm border"
-              style={{
-                background: "transparent",
-                borderColor: "var(--line)",
-                color: "var(--ink-700)",
-              }}
-              onClick={() => alert("Google login coming soon.")}
-            >
-              Continue with Google
-            </button>
+            <GoogleLoginButton />
           </form>
 
-          {/* Register */}
+      
           <p className="text-center text-sm mt-5">
             New here?{" "}
             <Link
@@ -207,7 +197,7 @@ function LoginForm() {
           </p>
         </div>
 
-        {/* Quick login */}
+      
         <div className="mt-5">
           <p className="text-center text-xs uppercase tracking-widest mb-3">
             Or quick login as

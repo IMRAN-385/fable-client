@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/components/Providers";
 
@@ -16,9 +17,18 @@ function SimpleBar({ label, value, max }) {
   );
 }
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const { token } = useAuth();
-  const [tab, setTab] = useState("overview");
+  const searchParams = useSearchParams();
+
+  // ✅ FIX: DashboardLayout's sidebar links point to
+  // /dashboard/admin?tab=users, /dashboard/admin?tab=ebooks, etc, but this
+  // component always ignored that and started on "overview" with no way
+  // to land on another tab via URL. Now the initial tab comes from the
+  // query string, matching the links it's rendered alongside.
+  const initialTab = searchParams.get("tab") || "overview";
+  const [tab, setTab] = useState(initialTab);
+
   const [stats, setStats] = useState(null);
   const [monthlySales, setMonthlySales] = useState({});
   const [genreCount, setGenreCount] = useState({});
@@ -40,6 +50,8 @@ export default function AdminDashboard() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/purchase/all`, { headers: h }),
       ]);
       const [aData, uData, eData, tData] = await Promise.all([aRes.json(), uRes.json(), eRes.json(), tRes.json()]);
+      // ✅ FIX: this now matches exactly what /api/users/analytics returns
+      // after the backend fix: { stats, monthlySales, genreCount }.
       setStats(aData.stats);
       setMonthlySales(aData.monthlySales || {});
       setGenreCount(aData.genreCount || {});
@@ -243,7 +255,7 @@ export default function AdminDashboard() {
               <table className="w-full text-sm">
                 <thead style={{ background: "var(--paper-2)" }}>
                   <tr>
-                    {["Ebook", "Buyer", "Amount", "Date"].map((h) => (
+                    {["Ebook / Type", "Buyer", "Amount", "Date"].map((h) => (
                       <th key={h} className="text-left px-4 py-3 text-xs uppercase tracking-wide whitespace-nowrap" style={{ color: "var(--ink-500)" }}>{h}</th>
                     ))}
                   </tr>
@@ -253,7 +265,10 @@ export default function AdminDashboard() {
                     <tr><td colSpan={4} className="px-4 py-8 text-center text-sm" style={{ color: "var(--ink-500)" }}>No transactions yet</td></tr>
                   ) : transactions.map((t, i) => (
                     <tr key={t._id} style={{ borderTop: i > 0 ? "1px solid var(--line)" : "none" }}>
-                      <td className="px-4 py-3 font-medium" style={{ color: "var(--ink-900)" }}>{t.ebookId?.title || "—"}</td>
+                      <td className="px-4 py-3 font-medium" style={{ color: "var(--ink-900)" }}>
+                        {/* ✅ FIX: publishing-fee rows have no ebookId, show that clearly instead of "—" */}
+                        {t.ebookId?.title || (t.type === "publishing_fee" ? "Writer verification fee" : "—")}
+                      </td>
                       <td className="px-4 py-3" style={{ color: "var(--ink-500)" }}>{t.userId?.email || "—"}</td>
                       <td className="px-4 py-3 font-medium" style={{ color: "var(--ink-900)" }}>${t.amount?.toFixed(2)}</td>
                       <td className="px-4 py-3" style={{ color: "var(--ink-500)" }}>{new Date(t.createdAt).toLocaleDateString()}</td>
@@ -266,5 +281,13 @@ export default function AdminDashboard() {
         </>
       )}
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="py-12 text-center text-sm" style={{ color: "var(--ink-500)" }}>Loading…</div>}>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

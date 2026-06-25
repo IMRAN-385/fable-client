@@ -8,7 +8,10 @@ export default function TopWriters() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/top-writers`)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) { setLoading(false); return; }
+
+    fetch(`${apiUrl}/api/users/top-writers`)
       .then((r) => r.json())
       .then((d) => setWriters(d.writers || []))
       .catch(console.error)
@@ -18,10 +21,18 @@ export default function TopWriters() {
   const getInitials = (name) =>
     name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "W";
 
+  if (!loading && writers.length === 0) return null;
+
   return (
-    <section className="px-4 md:px-8 lg:px-12 py-10" style={{ borderTop: "1px solid var(--line)" }}>
+    <section className="px-4 md:px-8 lg:px-12 py-12" style={{ borderTop: "1px solid var(--line)" }}>
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-6"
+        >
           <span
             className="inline-flex items-center border rounded-full px-3 py-0.5 text-xs uppercase tracking-widest mb-3"
             style={{ borderColor: "var(--ink-900)", color: "var(--ink-900)" }}
@@ -34,7 +45,7 @@ export default function TopWriters() {
           >
             Top <span style={{ fontStyle: "italic" }}>Writers</span>
           </h2>
-        </div>
+        </motion.div>
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -42,8 +53,6 @@ export default function TopWriters() {
               <div key={i} className="h-20 rounded-2xl animate-pulse" style={{ background: "var(--line)" }} />
             ))}
           </div>
-        ) : writers.length === 0 ? (
-          <p className="text-sm" style={{ color: "var(--ink-500)" }}>No sales data yet.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {writers.map((writer, i) => (
@@ -53,6 +62,7 @@ export default function TopWriters() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ y: -2 }}
               >
                 <Link
                   href={`/ebooks?writerId=${writer._id}`}

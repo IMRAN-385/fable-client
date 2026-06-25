@@ -2,18 +2,18 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useAuth } from"../../context/AuthContext";
+import { useAuth } from "@/components/Providers";
+import { motion, AnimatePresence } from "framer-motion";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/ebooks", label: "Browse" },
-  { href: "/dashboard", label: "Dashboard" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -30,6 +30,7 @@ export function Navbar() {
     logout();
     setOpen(false);
     router.push("/");
+    router.refresh();
   };
 
   const getDashboard = () => {
@@ -39,18 +40,24 @@ export function Navbar() {
     return "/dashboard/user";
   };
 
-  const links = NAV_LINKS.map((l) =>
-    l.href === "/dashboard" ? { ...l, href: getDashboard() } : l
-  );
+  const links = [
+    ...NAV_LINKS,
+    { href: getDashboard(), label: "Dashboard" },
+  ];
 
   return (
     <div className="pointer-events-none sticky top-0 z-40 flex justify-center px-4 pt-4 pb-2">
       <header className="pointer-events-auto w-full max-w-3xl">
-        <div
-          className="flex items-center justify-between gap-2 rounded-full border px-2 py-1.5 backdrop-blur-md transition-shadow"
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center justify-between gap-2 rounded-full border px-2 py-1.5 backdrop-blur-md transition-all duration-300"
           style={{
-            background: "rgba(244, 240, 232, 0.92)",
+            background: "rgba(244, 240, 232, 0.85)",
             borderColor: "var(--line)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
             boxShadow: scrolled
               ? "0 8px 32px -8px rgba(28,24,20,0.15)"
               : "0 2px 8px -2px rgba(28,24,20,0.08)",
@@ -59,17 +66,14 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 pl-2 shrink-0">
             <span
-              className="grid h-7 w-7 place-items-center rounded-full text-sm"
+              className="grid h-7 w-7 place-items-center rounded-full text-sm font-bold"
               style={{ background: "var(--ink-900)", color: "var(--paper)" }}
             >
               ✦
             </span>
             <span
               className="text-base font-semibold tracking-tight"
-              style={{
-                fontFamily: "var(--font-display)",
-                color: "var(--ink-900)",
-              }}
+              style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
             >
               Fable
             </span>
@@ -92,34 +96,80 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop Actions */}
+          {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-2 pr-1">
-            {user ? (
-              <button onClick={handleLogout} className="btn btn-outline text-sm px-4 py-1.5">
-                Log out
-              </button>
+            {loading ? (
+              <div
+                className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin"
+                style={{ borderColor: "var(--ink-900)" }}
+              />
+            ) : user ? (
+              // ✅ Logged in — show avatar + logout
+              <div className="flex items-center gap-2">
+                <Link
+                  href={getDashboard()}
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold overflow-hidden border"
+                    style={{
+                      background: "var(--line)",
+                      color: "var(--ink-900)",
+                      borderColor: "var(--line)",
+                    }}
+                  >
+                    {user.photo ? (
+                      <img
+                        src={user.photo}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      user.name?.[0]?.toUpperCase()
+                    )}
+                  </div>
+                  <span
+                    className="text-sm font-medium max-w-[100px] truncate"
+                    style={{ color: "var(--ink-900)" }}
+                  >
+                    {user.name}
+                  </span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-medium px-3 py-1.5 rounded-full border transition-colors hover:bg-black/5"
+                  style={{ borderColor: "var(--line)", color: "var(--ink-700)" }}
+                >
+                  Log out
+                </button>
+              </div>
             ) : (
+              // ✅ Not logged in — show Login + Sign up
               <>
                 <Link
                   href="/login"
-                  className="btn btn-ghost text-sm px-3 py-1.5"
+                  className="text-sm font-medium px-3 py-1.5 rounded-full transition-colors hover:bg-black/5"
                   style={{ color: "var(--ink-700)" }}
                 >
                   Log in
                 </Link>
-                <Link href="/register" className="btn btn-primary text-sm px-4 py-1.5">
+                <Link
+                  href="/register"
+                  className="text-sm font-medium px-4 py-1.5 rounded-full transition-colors hover:opacity-90"
+                  style={{ background: "var(--ink-900)", color: "var(--paper)" }}
+                >
                   Sign up
                 </Link>
               </>
             )}
           </div>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile hamburger */}
           <button
-            aria-label="Toggle menu"
-            className="rounded-full p-2 md:hidden"
+            className="md:hidden rounded-full p-2 transition-colors hover:bg-black/5"
             style={{ color: "var(--ink-700)" }}
             onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle menu"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path
@@ -130,48 +180,86 @@ export function Navbar() {
               />
             </svg>
           </button>
-        </div>
+        </motion.div>
 
-        {/* Mobile Menu */}
-        {open && (
-          <div
-            className="mt-2 rounded-2xl border p-3 shadow-lg md:hidden"
-            style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
-          >
-            <div className="flex flex-col gap-1">
-              {links.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl px-3 py-2 text-sm font-medium"
-                  style={{
-                    background: isActive(l.href) ? "var(--ink-900)" : "transparent",
-                    color: isActive(l.href) ? "var(--paper)" : "var(--ink-700)",
-                  }}
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="mt-2 rounded-2xl border p-3 shadow-lg md:hidden"
+              style={{
+                background: "rgba(244,240,232,0.95)",
+                backdropFilter: "blur(12px)",
+                borderColor: "var(--line)",
+              }}
+            >
+              <div className="flex flex-col gap-1">
+                {links.map((l) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl px-3 py-2 text-sm font-medium"
+                    style={{
+                      background: isActive(l.href) ? "var(--ink-900)" : "transparent",
+                      color: isActive(l.href) ? "var(--paper)" : "var(--ink-700)",
+                    }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+
+                <div
+                  className="mt-2 flex gap-2 border-t pt-2"
+                  style={{ borderColor: "var(--line)" }}
                 >
-                  {l.label}
-                </Link>
-              ))}
-              <div className="mt-2 flex gap-2 border-t pt-2" style={{ borderColor: "var(--line)" }}>
-                {user ? (
-                  <button onClick={handleLogout} className="btn btn-outline flex-1 text-sm">
-                    Log out
-                  </button>
-                ) : (
-                  <>
-                    <Link href="/login" onClick={() => setOpen(false)} className="btn btn-outline flex-1 text-sm">
-                      Log in
-                    </Link>
-                    <Link href="/register" onClick={() => setOpen(false)} className="btn btn-primary flex-1 text-sm">
-                      Sign up
-                    </Link>
-                  </>
-                )}
+                  {user ? (
+                    <>
+                      <Link
+                        href={getDashboard()}
+                        onClick={() => setOpen(false)}
+                        className="flex-1 py-2 rounded-xl text-sm text-center font-medium"
+                        style={{ background: "var(--ink-900)", color: "var(--paper)" }}
+                      >
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex-1 py-2 rounded-xl text-sm border text-center"
+                        style={{ borderColor: "var(--line)", color: "var(--ink-700)" }}
+                      >
+                        Log out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={() => setOpen(false)}
+                        className="flex-1 py-2 rounded-xl text-sm border text-center"
+                        style={{ borderColor: "var(--line)", color: "var(--ink-700)" }}
+                      >
+                        Log in
+                      </Link>
+                      <Link
+                        href="/register"
+                        onClick={() => setOpen(false)}
+                        className="flex-1 py-2 rounded-xl text-sm text-center font-medium"
+                        style={{ background: "var(--ink-900)", color: "var(--paper)" }}
+                      >
+                        Sign up
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
     </div>
   );

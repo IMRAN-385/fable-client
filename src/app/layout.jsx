@@ -1,43 +1,33 @@
-import {
-  Fraunces,
-  Source_Serif_4,
-  JetBrains_Mono,
-} from "next/font/google";
-
-import { AuthProvider } from "../../src/context/AuthContext";
-import AppShell from "../components/AppSpell";
+import { Lora, Inter } from "next/font/google";
+import { Providers } from "@/components/Providers";
+import AppShell from "@/components/AppShell";
 import "./globals.css";
-import { ToastProvider } from "../context/toastcontext";
-;
 
-const fraunces = Fraunces({
+const lora = Lora({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["400", "600", "900"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
-const sourceSerif = Source_Serif_4({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
-  weight: ["400", "600"],
+  weight: ["400", "500", "600"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  weight: ["400", "500"],
-});
-
+export const metadata = {
+  title: "Fable — Discover & Read Original Ebooks",
+  description: "A digital platform connecting ebook lovers with talented writers.",
+};
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${lora.variable} ${inter.variable}`}>
       <body>
-        <AuthProvider>
-          <ToastProvider>
-            <AppShell>{children}</AppShell>
-          </ToastProvider>
-        </AuthProvider>
+        <Providers>
+          <AppShell>{children}</AppShell>
+        </Providers>
       </body>
     </html>
   );

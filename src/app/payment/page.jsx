@@ -11,6 +11,9 @@ function PaymentContent() {
 
   const sessionId = searchParams.get("session_id");
   const ebookId = searchParams.get("ebookId");
+  // ✅ FIX: this page previously only handled ebook purchases. Now it
+  // also understands the writer-verification-fee flow (?type=publishing_fee).
+  const type = searchParams.get("type") || "purchase";
 
   useEffect(() => {
     if (!sessionId) { setStatus("error"); return; }
@@ -38,6 +41,16 @@ function PaymentContent() {
 
     confirm();
   }, [sessionId, token]);
+
+  const handleContinue = () => {
+    if (type === "publishing_fee") {
+      // Full reload so the auth provider re-fetches /api/auth/profile
+      // and picks up the new "writer" role server-side.
+      window.location.href = "/dashboard/writer";
+    } else {
+      router.push(`/ebooks/${ebookId}`);
+    }
+  };
 
   return (
     <main
@@ -67,16 +80,15 @@ function PaymentContent() {
               className="text-2xl font-semibold mb-2"
               style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
             >
-              Payment Successful
+              {type === "publishing_fee" ? "You're verified!" : "Payment Successful"}
             </h2>
             <p className="text-sm mb-6" style={{ color: "var(--ink-500)" }}>
-              Your ebook has been unlocked.
+              {type === "publishing_fee"
+                ? "Your writer account is now active."
+                : "Your ebook has been unlocked."}
             </p>
-            <button
-              onClick={() => router.push(`/ebooks/${ebookId}`)}
-              className="btn btn-primary px-6 py-3 text-sm"
-            >
-              Read Now →
+            <button onClick={handleContinue} className="btn btn-primary px-6 py-3 text-sm">
+              {type === "publishing_fee" ? "Go to writer dashboard →" : "Read Now →"}
             </button>
           </>
         )}
@@ -94,10 +106,10 @@ function PaymentContent() {
               Payment could not be verified.
             </p>
             <button
-              onClick={() => router.push("/ebooks")}
+              onClick={() => router.push(type === "publishing_fee" ? "/dashboard/verify-writer" : "/ebooks")}
               className="btn btn-outline px-6 py-3 text-sm"
             >
-              Back to Library
+              {type === "publishing_fee" ? "Try again" : "Back to Library"}
             </button>
           </>
         )}

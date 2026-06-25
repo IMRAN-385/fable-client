@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/components/Providers";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -41,7 +41,17 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Registration failed");
       saveAuth(data.user, data.token);
-      router.push("/");
+
+      // ✅ FIX: previously choosing "Publish ebooks" instantly made the
+      // account a writer for free. Now the backend always creates a
+      // "user" and just flags pendingWriter=true if they asked for writer
+      // access — so here we route them to pay the one-time verification
+      // fee before they actually get writer privileges.
+      if (data.user.pendingWriter) {
+        router.push("/dashboard/verify-writer");
+      } else {
+        router.push("/");
+      }
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -184,7 +194,7 @@ export default function RegisterPage() {
                     Publish ebooks
                   </p>
                   <p className="text-xs" style={{ color: "#d97706" }}>
-                    I want to write and sell.
+                    Requires a one-time verification fee.
                   </p>
                 </button>
               </div>

@@ -7,8 +7,9 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <FeaturedEbooks />
-      <TopWriters />
+     <FeaturedEbooks />
+     <TopWriters />
+      
       <GenreGrid />
     </main>
   );

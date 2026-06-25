@@ -7,16 +7,16 @@ import { useAuth } from "@/components/Providers";
 
 function SkeletonDetail() {
   return (
-    <div className="min-h-screen pt-28 pb-16 px-6 md:px-10 lg:px-16">
+    <main className="min-h-screen pt-6 pb-16 px-4 md:px-8 lg:px-12" style={{ background: "var(--paper)" }}>
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="rounded-3xl aspect-[3/4] animate-pulse" style={{ background: "var(--ink-soft)" }} />
-        <div className="flex flex-col gap-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="rounded-full h-6 animate-pulse" style={{ background: "var(--ink-soft)", width: `${80 - i * 10}%` }} />
+        <div className="rounded-2xl aspect-[3/4] animate-pulse" style={{ background: "var(--line)" }} />
+        <div className="flex flex-col gap-4 pt-4">
+          {[80, 60, 40, 90, 50].map((w, i) => (
+            <div key={i} className="h-4 rounded-full animate-pulse" style={{ background: "var(--line)", width: `${w}%` }} />
           ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -39,50 +39,34 @@ export default function EbookDetailsPage() {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/ebooks/${id}`,
-          {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          }
+          { headers: token ? { Authorization: `Bearer ${token}` } : {} }
         );
-
-        if (res.status === 404) {
-          setNotFound(true);
-          return;
-        }
-
+        if (res.status === 404) { setNotFound(true); return; }
         const data = await res.json();
         setEbook(data.ebook);
         setIsOwner(data.isOwner || false);
         setIsPurchased(data.isPurchasedByUser || false);
-      } catch (err) {
+      } catch {
         setNotFound(true);
       } finally {
         setLoading(false);
       }
     };
-
     fetchEbook();
   }, [id, token]);
 
   const handleBuy = async () => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
+    if (!user) { router.push("/login"); return; }
     try {
       setBuyLoading(true);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/purchase/create-checkout-session`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ ebookId: ebook._id }),
         }
       );
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       window.location.href = data.url;
@@ -94,18 +78,13 @@ export default function EbookDetailsPage() {
   };
 
   const handleBookmark = async () => {
-    if (!user) {
-      router.push("/login");
-      return;
-    }
-
+    if (!user) { router.push("/login"); return; }
     try {
       setBookmarkLoading(true);
-      const method = isBookmarked ? "DELETE" : "POST";
       await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookmark/${ebook._id}`,
         {
-          method,
+          method: isBookmarked ? "DELETE" : "POST",
           headers: { Authorization: `Bearer ${token}` },
         }
       );
@@ -121,51 +100,38 @@ export default function EbookDetailsPage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen pt-28 flex flex-col items-center justify-center gap-6">
-        <p className="font-display text-4xl" style={{ color: "var(--ivory)" }}>
+      <main className="min-h-screen flex flex-col items-center justify-center gap-5 px-4" style={{ background: "var(--paper)" }}>
+        <p className="text-6xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--line)" }}>404</p>
+        <h1 className="text-2xl font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}>
           Ebook not found
-        </p>
-        <Link
-          href="/ebooks"
-          className="px-6 py-3 rounded-full font-mono text-sm"
-          style={{ background: "var(--gold)", color: "var(--ink)" }}
-        >
+        </h1>
+        <Link href="/ebooks" className="btn btn-primary px-6 py-2.5 text-sm">
           Back to Library
         </Link>
-      </div>
+      </main>
     );
   }
 
   return (
-    <main
-      className="min-h-screen pt-28 pb-16 px-6 md:px-10 lg:px-16"
-      style={{ background: "var(--ink)" }}
-    >
+    <main className="min-h-screen pt-6 pb-16 px-4 md:px-8 lg:px-12" style={{ background: "var(--paper)" }}>
       <div className="max-w-5xl mx-auto">
-        {/* Back */}
         <Link
           href="/ebooks"
-          className="inline-flex items-center gap-2 font-mono text-sm mb-10"
-          style={{ color: "var(--muted)" }}
+          className="inline-flex items-center gap-1 text-sm mb-8"
+          style={{ color: "var(--ink-500)" }}
         >
           ← Back to Library
         </Link>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {/* Cover Image */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+          {/* Cover */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-            className="relative rounded-3xl overflow-hidden aspect-[3/4] shadow-2xl"
+            transition={{ duration: 0.6 }}
+            className="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-lg"
+            style={{ background: "var(--line)" }}
           >
-            <div
-              className="absolute inset-y-0 left-0 w-2"
-              style={{
-                background:
-                  "linear-gradient(180deg, var(--gold), var(--spine))",
-              }}
-            />
             {ebook.coverImage ? (
               <img
                 src={ebook.coverImage}
@@ -173,113 +139,73 @@ export default function EbookDetailsPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div
-                className="w-full h-full flex items-center justify-center font-display text-6xl"
-                style={{ background: "var(--ink-soft)", color: "var(--muted)" }}
-              >
-                📖
-              </div>
+              <div className="w-full h-full flex items-center justify-center text-6xl">📖</div>
             )}
             <span
-              className="absolute top-4 right-4 px-3 py-1 rounded-full font-mono text-xs uppercase tracking-wide rotate-2"
-              style={{ background: "var(--spine)", color: "var(--ivory)" }}
+              className="absolute top-3 left-3 px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide"
+              style={{ background: "rgba(28,24,20,0.75)", color: "#fff" }}
             >
               {ebook.genre}
             </span>
+            {ebook.status === "sold" && !isPurchased && (
+              <span
+                className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[11px] font-semibold uppercase"
+                style={{ background: "#dc2626", color: "#fff" }}
+              >
+                Sold Out
+              </span>
+            )}
           </motion.div>
 
           {/* Details */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-            className="flex flex-col justify-center gap-6"
+            transition={{ duration: 0.6 }}
+            className="flex flex-col gap-5 justify-center"
           >
             <div>
               <h1
-                className="font-display text-3xl md:text-4xl leading-tight mb-3"
-                style={{ color: "var(--ivory)" }}
+                className="text-3xl md:text-4xl font-semibold leading-tight mb-2"
+                style={{ fontFamily: "var(--font-display)", color: "var(--ink-900)" }}
               >
                 {ebook.title}
               </h1>
               <Link
                 href={`/ebooks?writerId=${ebook.writerId}`}
-                className="font-mono text-sm hover:underline"
-                style={{ color: "var(--gold)" }}
+                className="text-sm hover:underline"
+                style={{ color: "var(--ink-500)" }}
               >
                 by {ebook.writerName}
               </Link>
             </div>
 
-            <p
-              className="font-body text-sm leading-relaxed"
-              style={{ color: "var(--muted)" }}
-            >
+            {/* This is always just the public preview/blurb */}
+            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-700)" }}>
               {ebook.description}
             </p>
 
-            <div className="flex flex-wrap gap-4">
-              <div
-                className="px-4 py-2 rounded-2xl"
-                style={{ background: "var(--ink-soft)" }}
-              >
-                <p
-                  className="font-mono text-xs uppercase tracking-wide mb-1"
-                  style={{ color: "var(--muted)" }}
+            {/* Meta */}
+            <div className="flex flex-wrap gap-3">
+              {[
+                { label: "Price", value: `$${ebook.price}` },
+                { label: "Genre", value: ebook.genre },
+                { label: "Status", value: ebook.status === "sold" ? "Sold Out" : "Available" },
+                { label: "Added", value: new Date(ebook.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) },
+              ].map((m) => (
+                <div
+                  key={m.label}
+                  className="px-4 py-2.5 rounded-2xl border"
+                  style={{ background: "var(--paper-2)", borderColor: "var(--line)" }}
                 >
-                  Price
-                </p>
-                <p
-                  className="font-display text-xl"
-                  style={{ color: "var(--gold)" }}
-                >
-                  ${ebook.price}
-                </p>
-              </div>
-
-              <div
-                className="px-4 py-2 rounded-2xl"
-                style={{ background: "var(--ink-soft)" }}
-              >
-                <p
-                  className="font-mono text-xs uppercase tracking-wide mb-1"
-                  style={{ color: "var(--muted)" }}
-                >
-                  Status
-                </p>
-                <p
-                  className="font-display text-xl"
-                  style={{
-                    color:
-                      ebook.status === "sold"
-                        ? "var(--spine)"
-                        : "var(--ivory)",
-                  }}
-                >
-                  {ebook.status === "sold" ? "Sold Out" : "Available"}
-                </p>
-              </div>
-
-              <div
-                className="px-4 py-2 rounded-2xl"
-                style={{ background: "var(--ink-soft)" }}
-              >
-                <p
-                  className="font-mono text-xs uppercase tracking-wide mb-1"
-                  style={{ color: "var(--muted)" }}
-                >
-                  Added
-                </p>
-                <p
-                  className="font-display text-xl"
-                  style={{ color: "var(--ivory)" }}
-                >
-                  {new Date(ebook.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
-              </div>
+                  <p className="text-[10px] uppercase tracking-wide mb-0.5" style={{ color: "var(--ink-500)" }}>
+                    {m.label}
+                  </p>
+                  <p className="text-sm font-semibold" style={{ color: "var(--ink-900)" }}>
+                    {m.value}
+                  </p>
+                </div>
+              ))}
             </div>
 
             {/* Action Buttons */}
@@ -287,24 +213,22 @@ export default function EbookDetailsPage() {
               {isOwner ? (
                 <button
                   disabled
-                  className="px-6 py-3 rounded-full font-mono text-sm opacity-40 cursor-not-allowed"
-                  style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
+                  className="btn btn-outline px-6 py-2.5 text-sm opacity-40 cursor-not-allowed"
                 >
                   Your own ebook
                 </button>
               ) : isPurchased ? (
                 <button
                   disabled
-                  className="px-6 py-3 rounded-full font-mono text-sm opacity-60 cursor-not-allowed"
-                  style={{ background: "var(--ink-soft)", color: "var(--gold)" }}
+                  className="px-6 py-2.5 rounded-full text-sm font-medium opacity-70 cursor-not-allowed border"
+                  style={{ borderColor: "#16a34a", color: "#16a34a" }}
                 >
                   ✓ Already Purchased
                 </button>
               ) : ebook.status === "sold" ? (
                 <button
                   disabled
-                  className="px-6 py-3 rounded-full font-mono text-sm opacity-40 cursor-not-allowed"
-                  style={{ background: "var(--ink-soft)", color: "var(--ivory)" }}
+                  className="btn btn-outline px-6 py-2.5 text-sm opacity-40 cursor-not-allowed"
                 >
                   Sold Out
                 </button>
@@ -312,52 +236,47 @@ export default function EbookDetailsPage() {
                 <button
                   onClick={handleBuy}
                   disabled={buyLoading}
-                  className="px-6 py-3 rounded-full font-mono text-sm transition-transform hover:scale-105"
-                  style={{ background: "var(--gold)", color: "var(--ink)" }}
+                  className="btn btn-primary px-6 py-2.5 text-sm disabled:opacity-50"
                 >
-                  {buyLoading ? "Redirecting..." : "Buy Now →"}
+                  {buyLoading ? "Redirecting…" : "Buy Now →"}
                 </button>
               )}
 
               <button
                 onClick={handleBookmark}
                 disabled={bookmarkLoading}
-                className="px-6 py-3 rounded-full font-mono text-sm border transition-all"
+                className="px-6 py-2.5 rounded-full text-sm font-medium border transition-all"
                 style={{
-                  borderColor: isBookmarked ? "var(--gold)" : "var(--ink-soft)",
-                  color: isBookmarked ? "var(--gold)" : "var(--muted)",
-                  background: "transparent",
+                  borderColor: isBookmarked ? "var(--ink-900)" : "var(--line)",
+                  color: isBookmarked ? "var(--ink-900)" : "var(--ink-500)",
+                  background: isBookmarked ? "var(--paper-2)" : "transparent",
                 }}
               >
                 {isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
               </button>
             </div>
 
-            {/* Full content after purchase */}
-            {isPurchased && (
+            {/* Full content after purchase — ✅ FIX: uses ebook.fullContent
+                (only present in the API response once you actually own
+                or purchased the book) instead of repeating `description`. */}
+            {isPurchased || isOwner ? (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 p-6 rounded-2xl"
-                style={{
-                  background: "var(--ink-soft)",
-                  border: "1px solid var(--gold)",
-                }}
+                className="p-5 rounded-2xl border"
+                style={{ background: "var(--paper-2)", borderColor: "#86efac" }}
               >
                 <p
-                  className="font-mono text-xs uppercase tracking-wide mb-3"
-                  style={{ color: "var(--gold)" }}
+                  className="text-xs uppercase tracking-wide mb-2 font-semibold"
+                  style={{ color: "#16a34a" }}
                 >
-                  Full Content
+                  ✓ Full Content Unlocked
                 </p>
-                <p
-                  className="font-body text-sm leading-relaxed"
-                  style={{ color: "var(--ivory)" }}
-                >
-                  {ebook.description}
+                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: "var(--ink-700)" }}>
+                  {ebook.fullContent || "No content available."}
                 </p>
               </motion.div>
-            )}
+            ) : null}
           </motion.div>
         </div>
       </div>
