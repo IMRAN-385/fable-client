@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Fable – Ebook Sharing Platform
 
-## Getting Started
+A modern digital platform connecting ebook lovers with talented writers. Browse, discover, purchase, and read original ebooks from emerging authors worldwide.
 
-First, run the development server:
+## 🌐 Live URL
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+[https://fable-client-azure.vercel.app](https://fable-client-azure.vercel.app)
+
+## 📌 Purpose
+
+Fable democratizes access to literature by enabling writers to publish and sell original ebooks directly to readers. The platform features role-based dashboards for readers, writers, and admins — with full payment integration, bookmark system, and real-time analytics.
+
+## ✨ Key Features
+
+- 🔐 JWT Authentication (Email/Password + Google OAuth)
+- 👤 Role-based access: Reader, Writer, Admin
+- 📚 Browse, search, filter, sort & paginate ebooks
+- 💳 Stripe payment integration for ebook purchases
+- 🔖 Bookmark system for saving ebooks
+- 📊 Admin analytics dashboard with charts
+- 🖊️ Writer dashboard: add, edit, publish/unpublish ebooks
+- 🖼️ imgBB API for cover image uploads
+- ⚡ Framer Motion animations throughout
+- 📱 Fully responsive design
+- 🌀 Loading screen with counter animation
+- 💀 Skeleton loaders for all data-fetching states
+- 🚫 Custom 404 error page
+
+## 🛠️ NPM Packages Used
+
+| Package | Purpose |
+|---|---|
+| `next` | React framework (App Router) |
+| `react` | UI library |
+| `framer-motion` | Animations |
+| `next-auth` | Google OAuth |
+| `tailwindcss` | Utility-first CSS |
+| `@tailwindcss/postcss` | Tailwind PostCSS plugin |
+
+## 🔑 Environment Variables
+
+Create a `.env.local` file in the root:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_IMGBB_KEY=your_imgbb_api_key
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+NEXTAUTH_SECRET=your_random_secret
+NEXTAUTH_URL=http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 👤 Test Credentials
 
-## Learn More
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@fable.com | Admin@123 |
+| Writer | writer@fable.com | writer123 |
+| Reader | reader@fable.com | reader123 |
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📁 Project Structure
