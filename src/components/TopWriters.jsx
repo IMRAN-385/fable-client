@@ -7,6 +7,7 @@ export default function TopWriters() {
   const [writers, setWriters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
 
   useEffect(() => {
     const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
@@ -23,6 +24,7 @@ export default function TopWriters() {
         if (!r.ok) throw new Error(`Server responded with ${r.status}`);
         return r.json();
       })
+      
       .then((d) => setWriters(d.writers || []))
       .catch((err) => {
         console.error("TopWriters fetch failed:", err);
@@ -127,3 +129,4 @@ export default function TopWriters() {
     </section>
   );
 }
+

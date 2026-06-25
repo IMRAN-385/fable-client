@@ -41,27 +41,55 @@ function AdminDashboardContent() {
   const h = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
   const fetchAll = async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const [aRes, uRes, eRes, tRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/analytics`, { headers: h }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, { headers: h }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/ebooks?limit=200`, { headers: h }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/purchase/all`, { headers: h }),
-      ]);
-      const [aData, uData, eData, tData] = await Promise.all([aRes.json(), uRes.json(), eRes.json(), tRes.json()]);
-      // ✅ FIX: this now matches exactly what /api/users/analytics returns
-      // after the backend fix: { stats, monthlySales, genreCount }.
-      setStats(aData.stats);
-      setMonthlySales(aData.monthlySales || {});
-      setGenreCount(aData.genreCount || {});
-      setUsers(uData.users || []);
-      setEbooks(eData.ebooks || []);
-      setTransactions(tData.purchases || []);
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
-  };
+  if (!token) return;
+
+  setLoading(true);
+
+  try {
+    const api = process.env.NEXT_PUBLIC_API_URL;
+
+    const [aRes, uRes, eRes, tRes] = await Promise.all([
+      fetch(`${api}/api/users/analytics`, { headers: h }),
+      fetch(`${api}/api/users`, { headers: h }),
+      fetch(`${api}/api/ebooks?limit=200`, { headers: h }),
+      fetch(`${api}/api/purchase/all`, { headers: h }),
+    ]);
+
+    console.log("Analytics:", aRes.status);
+    console.log("Users:", uRes.status);
+    console.log("Ebooks:", eRes.status);
+    console.log("Transactions:", tRes.status);
+
+    const parseResponse = async (res, name) => {
+      const text = await res.text();
+
+      console.log(`${name} RESPONSE:`, text);
+
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        console.error(`${name} returned HTML instead of JSON`);
+        return {};
+      }
+    };
+
+    const aData = await parseResponse(aRes, "ANALYTICS");
+    const uData = await parseResponse(uRes, "USERS");
+    const eData = await parseResponse(eRes, "EBOOKS");
+    const tData = await parseResponse(tRes, "TRANSACTIONS");
+
+    setStats(aData.stats || {});
+    setMonthlySales(aData.monthlySales || {});
+    setGenreCount(aData.genreCount || {});
+    setUsers(uData.users || []);
+    setEbooks(eData.ebooks || []);
+    setTransactions(tData.purchases || []);
+  } catch (error) {
+    console.error("FETCH ERROR:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => { fetchAll(); }, [token]);
 
