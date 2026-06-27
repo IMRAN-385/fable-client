@@ -4,7 +4,7 @@ A modern digital platform connecting ebook lovers with talented writers. Browse,
 
 ## 🌐 Live URL
 
-[https://fable-client-azure.vercel.app](https://fable-client-azure.vercel.app)
+[https://fable-client-azure.vercel.app](https://fable-client-mu.vercel.app))
 
 ## 📌 Purpose
 
