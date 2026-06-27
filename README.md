@@ -4,8 +4,7 @@ A modern digital platform connecting ebook lovers with talented writers. Browse,
 
 ## 🌐 Live URL
 
-[https://fable-client-azure.vercel.app](https://fable-client-mu.vercel.app))
-
+[https://fable-client-mu.vercel.app](https://fable-client-mu.vercel.app)
 ## 📌 Purpose
 
 Fable democratizes access to literature by enabling writers to publish and sell original ebooks directly to readers. The platform features role-based dashboards for readers, writers, and admins — with full payment integration, bookmark system, and real-time analytics.
