@@ -3,29 +3,7 @@ import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/components/Providers";
 
-/**
- * ✅ FIX for: "Google Login doesn't actually log the user in."
- *
- * Root cause: GoogleLoginButton calls next-auth's signIn("google"), which
- * creates a NextAuth session — a completely separate system from this
- * app's real auth, which is a custom JWT stored via useAuth()/saveAuth().
- * The backend already had a working /api/auth/google route that issues a
- * real app JWT, but nothing on the frontend ever called it.
- *
- * This component watches for a NextAuth session, exchanges it for a real
- * app JWT via the backend, and calls saveAuth() — so after the Google
- * OAuth redirect completes, useAuth().user/token actually populate.
- *
- * Mount this once near the root, e.g. inside Providers.jsx or AppShell,
- * underneath <SessionWrapper>:
- *
- *   <SessionWrapper>
- *     <Providers>
- *       <GoogleAuthBridge />
- *       <AppShell>{children}</AppShell>
- *     </Providers>
- *   </SessionWrapper>
- */
+
 export default function GoogleAuthBridge() {
   const { data: session, status } = useSession();
   const { token, saveAuth } = useAuth();
